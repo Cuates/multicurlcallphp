@@ -6,13 +6,13 @@
 * [Important Note](#important-note)
 * [Prerequisite Library](#prerequisite-library)
 
-# Version
+### Version
 * 0.0.1
 
-# **Important Note**
+### **Important Note**
 * This script was written with PHP 7.0+
 
-# Prerequisite Library
+### Prerequisite Library
 * phpseclib
   * Download and set this part up for your own environment
     * [PHP Sec Lib Sourceforge](http://phpseclib.sourceforge.net/)
