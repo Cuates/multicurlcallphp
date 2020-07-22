@@ -2,9 +2,9 @@
 > PHP web service multi curl call and database interaction
 
 ## Table of Contents
-* [Version] (#version)
-* [Important Note] (#important-note)
-* [Prerequisite Library] (#prerequisite-library)
+* [Version](#version)
+* [Important Note](#important-note)
+* [Prerequisite Library](#prerequisite-library)
 
 # Version
 * 0.0.1
