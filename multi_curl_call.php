@@ -1,8 +1,8 @@
 <?php
   /*
           File: multi_curl_call.php
-        Created: 07/21/2020
-        Updated: 07/21/2020
+        Created: 07/22/2020
+        Updated: 07/22/2020
      Programmer: Cuates
      Updated By: Cuates
         Purpose: Retrieve data from the database and process them in bulk via CURL
@@ -23,20 +23,20 @@
   $checkerrorcl = new checkerrorclass();
 
   // Set variables
-  $developerNotify = 'cautes@email.com'; // Production email(s)
-  // $developerNotify = 'cautes@email.com'; // Development email(s)
-  $endUserEmailNotify = 'cautes@email.com'; // Production email(s)
-  // $endUserEmailNotify = 'cautes@email.com'; // Development email(s)
+  $developerNotify = 'cuates@email.com'; // Production email(s)
+  // $developerNotify = 'cuates@email.com'; // Development email(s)
+  $endUserEmailNotify = 'cuates@email.com'; // Production email(s)
+  // $endUserEmailNotify = 'cuates@email.com'; // Development email(s)
   $externalEndUserEmailNotify = ''; // Production email(s)
-  // $externalEndUserEmailNotify = 'cautes@email.com'; // Development email(s)
-  $scriptName = 'Multi Curl Call Ingestion';
-  // $scriptName = 'TEST Multi Curl Call Ingestion TEST';
+  // $externalEndUserEmailNotify = 'cuates@email.com'; // Development email(s)
+  $scriptName = 'Multi Curl Call Ingestion'; // Production
+  // $scriptName = 'TEST Multi Curl Call Ingestion TEST'; // Development
   $fromEmailServer = 'Email Server';
   $fromEmailNotifier = 'email@email.com';
 
   // Retrieve any other issues not retrieved by the set_error_handler try/catch
   // Parameters are function name, $email_to, $email_subject, $from_mail, $from_name, $replyto, $email_cc and $email_bcc
-  register_shutdown_function(array($checkerrorcl,'shutdown_notify'), $developerNotify, 'Cron Job ' . $scriptName . ' Error', $fromEmailNotifier, $fromEmailServer, $fromEmailNotifier);
+  register_shutdown_function(array($checkerrorcl,'shutdown_notify'), $developerNotify, $scriptName . ' Error', $fromEmailNotifier, $fromEmailServer, $fromEmailNotifier);
 
   // Function to catch exception errors
   set_error_handler(function ($errno, $errstr, $errfile, $errline)
@@ -57,16 +57,16 @@
     define ('TEMPDOC', '/var/www/html/Temp_Directory/');
 
     // Include database class file
-    include ("multi_curl_call_class.php");
+    include ("multi_curl_class.php");
 
     // Create an object of database class as used by the API calls
-    $multi_curl_call_cl = new multi_curl_call_class();
+    $multi_curl_cl = new multi_curl_class();
 
     // Initialize variables and arrays
     $errorFilename = "";
     $errorString = "";
-    $errorPrefixFilename = "multi_curl_call_issue_"; // Production
-    // $errorPrefixFilename = "multi_curl_call_dev_issue_"; // Development
+    $errorPrefixFilename = "multi_curl_issue_"; // Production
+    // $errorPrefixFilename = "multi_curl_dev_issue_"; // Development
     $errormessagearray = array();
     $foundArray = array();
     $finalArray = array();
@@ -77,7 +77,7 @@
     $lineBreakString = array("\r\n", "\r", "\n");
 
     // Extract Sequence date time
-    $extractTimeStamp = $multi_curl_call_cl->extractTimeStampDate($idNum);
+    $extractTimeStamp = $multi_curl_cl->extractTimeStampDate($idNum);
 
     // Check if server error
     if (!isset($extractTimeStamp['SError']) && !array_key_exists('SError', $extractTimeStamp))
@@ -86,7 +86,7 @@
       $seqdatetime = reset($extractTimeStamp);
 
       // Register (update) data into database table
-      $regUpdateDataInformation = $multi_curl_call_cl->updateDataInformation($seqdatetime);
+      $regUpdateDataInformation = $multi_curl_cl->updateDataInformation($seqdatetime);
 
       // Explode database message
       $registerUpdateData = explode('~', $regUpdateDataInformation);
@@ -103,7 +103,7 @@
       }
 
       // Register (insert) data into database table
-      $regInsertDataInformation = $multi_curl_call_cl->insertDataInformation($seqdatetime);
+      $regInsertDataInformation = $multi_curl_cl->insertDataInformation($seqdatetime);
 
       // Explode database message
       $registerInsertData = explode('~', $regInsertDataInformation);
@@ -123,7 +123,7 @@
       if (count($errormessagearray) <= 0)
       {
         // Update sequence date
-        $updateTimeStamp = $multi_curl_call_cl->updateDateTimeStamp($idNum);
+        $updateTimeStamp = $multi_curl_cl->updateDateTimeStamp($idNum);
 
         // Explode database message
         $updateTimeStampData = explode('~', $updateTimeStamp);
@@ -155,7 +155,7 @@
     }
 
     // Extract data
-    $extractDataResponse = $multi_curl_call_cl->extractData();
+    $extractDataResponse = $multi_curl_cl->extractData();
 
     // Check if server error
     if (!isset($extractDataResponse['SError']) && !array_key_exists('SError', $extractDataResponse))
@@ -167,7 +167,7 @@
         $authToken = "";
 
         // Authenticate call
-        $authAPI = $multi_curl_call_cl->authenticateAPI();
+        $authAPI = $multi_curl_cl->authenticateAPI();
 
         // Split string
         $authAPIRespArray = explode('~', $authAPI);
@@ -213,7 +213,7 @@
         if ($authToken !== "")
         {
           // Bulk search call
-          $searchAPIResponse = $multi_curl_call_cl->searchMultiAPI('?pg=1&pgsize=10', $authToken, $extractDataResponse);
+          $searchAPIResponse = $multi_curl_cl->searchMultiAPI('?pg=1&pgsize=10', $authToken, $extractDataResponse);
 
           // Drop the data and shrink stack memory almost immediately
           $extractDataResponse = null;
@@ -258,7 +258,7 @@
                         else
                         {
                           // Update the table to status of 10 which will mean there are other issues that occurred
-                          $validateDataValidationStatusResponse = $multi_curl_call_cl->validateData('0', '10', $searchNumber);
+                          $validateDataValidationStatusResponse = $multi_curl_cl->validateData('0', '10', $searchNumber);
 
                           // Explode database message
                           $validateDataValidationStatusReturn = explode('~', $validateDataValidationStatusResponse);
@@ -342,7 +342,7 @@
         foreach($foundArray as $foundSearchNumber => $foundSearchValue)
         {
           // Extract Param 01 data
-          $extractParam01DataResponse = $multi_curl_call_cl->extractParam01Data($foundSearchNumber);
+          $extractParam01DataResponse = $multi_curl_cl->extractParam01Data($foundSearchNumber);
 
           // Check if server error
           if (!isset($extractParam01DataResponse['SError']) && !array_key_exists('SError', $extractParam01DataResponse))
@@ -404,7 +404,7 @@
           $authToken = "";
 
           // Authenticate call
-          $authAPI = $multi_curl_call_cl->authenticateAPI();
+          $authAPI = $multi_curl_cl->authenticateAPI();
 
           // Split string
           $authAPIRespArray = explode('~', $authAPI);
@@ -450,7 +450,7 @@
           if ($authToken !== "")
           {
             // POST update via API call in bulk
-            $updateRootAPI = $multi_curl_call_cl->postUpdateDataMultiAPI($finalArray, $authToken);
+            $updateRootAPI = $multi_curl_cl->postUpdateDataMultiAPI($finalArray, $authToken);
 
             // Drop the data and shrink stack memory almost immediately
             $finalArray = null;
@@ -475,7 +475,7 @@
                     $finalFoundArray[$updateRootNumber] = $updateRootValue;
 
                     // Update the table with the new information
-                    $validateDataValidationResponse = $multi_curl_call_cl->validateData('0', '3', $updateRootNumber);
+                    $validateDataValidationResponse = $multi_curl_cl->validateData('0', '3', $updateRootNumber);
 
                     // Explode database message
                     $validateDataValidationReturn = explode('~', $validateDataValidationResponse);
@@ -522,7 +522,7 @@
     }
 
     // Update sequence date
-    $sequenceUpdate = $multi_curl_call_cl->updateDateTimeStamp($idNumScript);
+    $sequenceUpdate = $multi_curl_cl->updateDateTimeStamp($idNumScript);
 
     // Explode database message
     $sequenceUpdateData = explode('~', $sequenceUpdate);
@@ -543,7 +543,7 @@
     {
       // Set prefix file name and headers
       $errorFilename = $errorPrefixFilename . date("Y-m-d_H-i-s") . '.csv';
-      $colHeaderArray = array(array('Cron Job Process', 'Number', 'Post Field String', 'Sequence Date Time', 'Sequence Number', 'Response', 'Message'));
+      $colHeaderArray = array(array('Process', 'Number', 'Post Field String', 'Sequence Date Time', 'Sequence Number', 'Response', 'Message'));
 
       // Initialize variable
       $to = "";
@@ -553,7 +553,7 @@
       $fromEmail = $fromEmailNotifier;
       $fromName = $fromEmailServer;
       $replyTo = $fromEmailNotifier;
-      $subject = "Cron Job " . $scriptName . " Error";
+      $subject = $scriptName . " Error";
 
       // Set the email headers
       $headers = "From: " . $fromEmailServer . " <" . $fromEmailNotifier . ">" . "\r\n";
@@ -581,14 +581,13 @@
         </head>
         <body>
           <div style=\"text-align: center;\">
-            <h2>
-              Cron Job "
+            <h2>"
               . $scriptName .
               " Error
             </h2>
           </div>
           <div style=\"text-align: center;\">
-            There was an issue with Cron Job " . $scriptName . " Error process.
+            There was an issue with " . $scriptName . " Error process.
             <br />
             <br />
             Do not reply, your intended recipient will not receive the message.
@@ -597,12 +596,12 @@
       </html>";
 
       // Call notify developer function
-      $multi_curl_call_cl->notifyDeveloper(TEMPDOC, $errorFilename, $colHeaderArray, $errormessagearray, $to, $to_cc, $to_bcc, $fromEmail, $fromName, $replyTo, $subject, $headers, $message, $xPriority);
+      $multi_curl_cl->notifyDeveloper(TEMPDOC, $errorFilename, $colHeaderArray, $errormessagearray, $to, $to_cc, $to_bcc, $fromEmail, $fromName, $replyTo, $subject, $headers, $message, $xPriority);
     }
   }
   catch(Exception $e)
   {
     // Call to the function
-    $checkerrorcl->caught_error_notify($e, $developerNotify, 'Cron Job ' . $scriptName . ' Error', $fromEmailNotifier, $fromEmailServer, $fromEmailNotifier);
+    $checkerrorcl->caught_error_notify($e, $developerNotify, $scriptName . ' Error', $fromEmailNotifier, $fromEmailServer, $fromEmailNotifier);
   }
 ?>

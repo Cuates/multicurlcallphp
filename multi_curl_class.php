@@ -1,15 +1,15 @@
 <?php
   /*
-          File: multi_curl_call_class.php
-       Created: 07/21/2020
-       Updated: 07/21/2020
+          File: multi_curl_class.php
+       Created: 07/22/2020
+       Updated: 07/22/2020
     Programmer: Cuates
     Updated By: Cuates
        Purpose: Multi curl call interaction
   */
 
   // Include configuration file
-  include ("multi_curl_call_config.php");
+  include ("multi_curl_config.php");
 
   // Set include path
   // Third party library needs to be downloaded from the internet and configured for the server system
@@ -22,7 +22,7 @@
   require_once ("mailclass.php");
 
   // Create the class for the db web service class
-  class multi_curl_call_class extends multi_curl_call_config
+  class multi_curl_call_class extends multi_curl_config
   {
     // PHP 5+ Style constructor
     public function __construct()
@@ -139,7 +139,7 @@
     }
     //**---------- Do not modify anything above this commented line ----------**//
 
-    // Update sequence for the invoice we are using and entity
+    // Update date time stamp
     public function updateDateTimeStamp($para01)
     {
       // multi_curl_call.php
@@ -364,8 +364,9 @@
       catch(Exception $e)
       {
         // Catch the error from the try section of code
-         // Set message
-         $returnValue = trim('Error~Unable to perform the post Authentication Curl call ' . $e->getMessage());
+
+        // Set message
+        $returnValue = trim('Error~Unable to perform the post Authentication Curl call ' . $e->getMessage());
 
         // error log the caught exception
         // error_log($e->getMessage());
@@ -1040,6 +1041,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
+      // Try to execute the following code
       try
       {
         // Set array with modified array
@@ -1134,6 +1136,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
+      // Try to execute the following code
       try
       {
         // Create file handle
@@ -1225,7 +1228,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try to perform the certain task(s)
+      // Try to execute the following code
       try
       {
         // Set array
@@ -1320,7 +1323,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try to perform the certain task(s)
+      // Try to execute the following code
       try
       {
         // Set array
@@ -1399,7 +1402,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try to perform the certain task(s)
+      // Try to execute the following code
       try
       {
         // Set array
@@ -1487,7 +1490,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try to perform the certain task(s)
+      // Try to execute the following code
       try
       {
         // Set array
@@ -1601,7 +1604,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try the following commands
+      // Try to execute the following code
       try
       {
         // Set array
@@ -1724,7 +1727,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try the following commands
+      // Try to execute the following code
       try
       {
         // Set array
@@ -1854,7 +1857,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try the following commands
+      // Try to execute the following code
       try
       {
         // Initialize array for storing values into proper sections of the array
@@ -1989,7 +1992,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try the following commands
+      // Try to execute the following code
       try
       {
         // Initialize variable and array
@@ -2150,7 +2153,7 @@
         throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
       });
 
-      // Try the following commands
+      // Try to execute the following code
       try
       {
         // Initialize variable and array

@@ -1,15 +1,15 @@
 <?php
   /*
-          File: multi_curl_call_config.php
-       Created: 07/21/2020
-       Updated: 07/21/2020
+          File: multi_curl_config.php
+       Created: 07/22/2020
+       Updated: 07/22/2020
     Programmer: Cuates
     Updated By: Cuates
        Purpose: Sensitive Database information
   */
 
   // Can ONLY be inherited by another class
-  abstract class multi_curl_call_config
+  abstract class multi_curl_config
   {
     // Declare protected variables
     protected $driver = NULL;
@@ -30,7 +30,7 @@
     }
 
     // PHP 4 Style constructor
-    public function multi_curl_call_config()
+    public function multi_curl_config()
     {
       // Call the constructor
       self::__construct();
