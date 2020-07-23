@@ -1,11 +1,11 @@
 <?php
   /*
           File: multi_curl_call.php
-        Created: 07/22/2020
-        Updated: 07/22/2020
-     Programmer: Cuates
-     Updated By: Cuates
-        Purpose: Retrieve data from the database and process them in bulk via CURL
+       Created: 07/22/2020
+       Updated: 07/23/2020
+    Programmer: Cuates
+    Updated By: Cuates
+       Purpose: Retrieve data from the database and process them in bulk via CURL
   */
 
   // https://stackoverflow.com/questions/4368603/multiple-php-curl-posts-to-same-page
@@ -531,7 +531,7 @@
     $updateSeqServerResp = reset($sequenceUpdateData);
     $updateSeqServerMesg = next($sequenceUpdateData);
 
-    // Check if error with registering process
+    // Check if error with updating sequence
     if (trim($updateSeqServerResp) !== "Success")
     {
       // Set array with error records for processing
@@ -556,7 +556,7 @@
       $subject = $scriptName . " Error";
 
       // Set the email headers
-      $headers = "From: " . $fromEmailServer . " <" . $fromEmailNotifier . ">" . "\r\n";
+      $headers = "From: " . $fromName . " <" . $fromEmail . ">" . "\r\n";
       // $headers .= "CC: " . $to_cc . "\r\n";
       // $headers .= "BCC: " . $to_bcc . "\r\n";
       $headers .= "MIME-Version: 1.0\r\n";
@@ -572,8 +572,9 @@
       $message = "<!DOCtype html>
       <html>
         <head>
-          <title>
-            Cron Job " . $scriptName . " Error
+          <title>"
+            . $scriptName .
+            " Error
           </title>
           <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
           <!-- Include next line to use the latest version of IE -->

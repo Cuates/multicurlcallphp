@@ -140,16 +140,16 @@
     //**---------- Do not modify anything above this commented line ----------**//
 
     // Update date time stamp
-    public function updateDateTimeStamp($para01)
+    public function updateDateTimeStamp($param01)
     {
       // multi_curl_call.php
 
       // Query
-      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @para01 = :para01";
+      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
       // Define values into key pair array
       $params = array(
-        ':para01' => trim($para01)
+        ':param01' => trim($param01)
       );
 
       // Return single attribute from the database
@@ -173,7 +173,7 @@
     }
 
     // Call a stored procedure to access information from the database
-    public function extractParam01Data($para01)
+    public function extractParam01Data($param01)
     {
       // multi_curl_call.php
 
@@ -181,11 +181,11 @@
       $titleArray = array('Column01', 'Column02', 'Column03');
 
       // Query
-      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @para01 = :para01";
+      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
       // Define values into key pair array
       $params = array(
-        ':para01' => trim($para01)
+        ':param01' => trim($param01)
       );
 
       // Retrieve values
@@ -193,16 +193,16 @@
     }
 
     // Call a stored procedure to bulk update information from another database
-    public function updateDataInformation($para01)
+    public function updateDataInformation($param01)
     {
       // multi_curl_call.php
 
       // Query
-      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @para01 = :para01";
+      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
       // Define values into key pair array
       $params = array(
-        ':para01' => trim($para01)
+        ':param01' => trim($param01)
       );
 
       // Retrieve values
@@ -210,16 +210,16 @@
     }
 
     // Call a stored procedure to bulk insert information from another database
-    public function insertDataInformation($para01)
+    public function insertDataInformation($param01)
     {
       // multi_curl_call.php
 
       // Query
-      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @para01 = :para01";
+      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
       // Define values into key pair array
       $params = array(
-        ':para01' => trim($para01)
+        ':param01' => trim($param01)
       );
 
       // Retrieve values
@@ -227,16 +227,16 @@
     }
 
     // Call a stored procedure to access information from the database
-    public function extractTimeStampDate($para01)
+    public function extractTimeStampDate($param01)
     {
       // multi_curl_call.php
 
       // Query
-      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @para01 = :para01";
+      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
       // Define values into key pair array
       $params = array(
-        ':para01' => trim($para01)
+        ':param01' => trim($param01)
       );
 
       // Retrieve values
@@ -244,17 +244,17 @@
     }
 
     // Validate Data
-    public function validateData($statusOld, $statusNew, $searchNnumber)
+    public function validateData($Old, $New, $searchNnumber)
     {
       // multi_curl_call.php
 
       // Query
-      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @statusOld = :statusOld, @statusNew = :statusNew, @searchNnumber = :searchNnumber";
+      $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @Old = :Old, @New = :New, @searchNnumber = :searchNnumber";
 
       // Define values into key pair array
       $params = array(
-        ':statusOld' => trim($statusOld),
-        ':statusNew' => trim($statusNew),
+        ':Old' => trim($Old),
+        ':New' => trim($New),
         ':searchNnumber' => trim($searchNnumber)
       );
 
