@@ -1,5 +1,5 @@
 # multicurlcallphp
-> PHP web service multi curl call and database interaction
+> PHP multi curl call and database interaction
 
 ## Table of Contents
 * [Version](#version)
