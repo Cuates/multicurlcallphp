@@ -145,8 +145,6 @@
     // Update date time stamp
     public function updateDateTimeStamp($param01)
     {
-      // multi_curl_call.php
-
       // Query
       $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
@@ -162,8 +160,6 @@
     // Call a stored procedure to access information from the database
     public function extractData()
     {
-      // multi_curl_call.php
-
       // Query
       $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>'";
 
@@ -178,8 +174,6 @@
     // Call a stored procedure to access information from the database
     public function extractParam01Data($param01)
     {
-      // multi_curl_call.php
-
       // Set title array
       $titleArray = array('Column01', 'Column02', 'Column03');
 
@@ -198,8 +192,6 @@
     // Call a stored procedure to bulk update information from another database
     public function updateDataInformation($param01)
     {
-      // multi_curl_call.php
-
       // Query
       $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
@@ -215,8 +207,6 @@
     // Call a stored procedure to bulk insert information from another database
     public function insertDataInformation($param01)
     {
-      // multi_curl_call.php
-
       // Query
       $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
@@ -232,8 +222,6 @@
     // Call a stored procedure to access information from the database
     public function extractTimeStampDate($param01)
     {
-      // multi_curl_call.php
-
       // Query
       $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @param01 = :param01";
 
@@ -249,8 +237,6 @@
     // Validate Data
     public function validateData($Old, $New, $searchNnumber)
     {
-      // multi_curl_call.php
-
       // Query
       $query = "<Stored_Procedure_Name> @optionMode = '<Option_Mode_Name>', @Old = :Old, @New = :New, @searchNnumber = :searchNnumber";
 
@@ -268,8 +254,6 @@
     // Authenticate via API call
     public function authenticateAPI()
     {
-      // multi_curl_call.php
-
       return $this->authenticateCURLCall("<Web_Service_Authentication>");
     }
 
@@ -386,8 +370,6 @@
     // Search via API call
     public function searchMultiAPI($urlQuery, $authToken, $numberArray)
     {
-      // multi_curl_call.php
-
       return $this->searchMulti($urlQuery, $authToken, $numberArray, "<Web_Service_Search>");
     }
 
@@ -628,8 +610,6 @@
     // Update data via API call
     public function postUpdateDataMultiAPI($postFields, $authToken)
     {
-      // multi_curl_call.php
-
       return $this->postUpdateDataMulti($postFields, $authToken, "<Web_Service_Update>");
     }
 
