@@ -2,7 +2,7 @@
   /*
           File: multi_curl_class.php
        Created: 07/22/2020
-       Updated: 07/22/2020
+       Updated: 07/26/2020
     Programmer: Cuates
     Updated By: Cuates
        Purpose: Multi curl call interaction
@@ -39,8 +39,7 @@
       self::__construct();
     }
 
-    // Set this function to private so public users cannot use this file
-    // Create an database/SFTP open function, for the function calls can connect to the database/SFTP
+    // Open connection function to an internal or external server
     private function openConnection($type = "notype")
     {
       // Set variable
@@ -66,6 +65,7 @@
         $this->URLAPI = next($conVars); // URL API
         $this->RemotePath = next($conVars); // Remote directory
         $this->subscriptionKey = next($conVars); // Subscription Key
+        $this->appKey = next($conVars); // App Key
 
         // Check database name. The data Name is set to make sure that we are connecting with a database
         if(preg_match('/<Database_Name>[a-zA-Z]{1,}/i', $type))
@@ -79,7 +79,7 @@
           // This will help when the database returns a hard error
           $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
-        else if(preg_match('/^SFTP$/i', $type))
+        else if(preg_match('/^<SFTP_Name>$/i', $type))
         {
           // Create an object with connection
           $this->sftp = new \phpseclib\Net\SFTP($this->Server, $this->Port);
@@ -98,10 +98,13 @@
             // error_log(print_r($returnArray, true));
           }
         }
+        else if(preg_match('/<Web_Service_>[a-zA-Z]{1,}/i', $type))
+        {
+        }
         else
         {
           // Set message
-          $returnArray = array('SError' => trim('Cannot connect to the database/SFTP'));
+          $returnArray = array('SError' => trim('Cannot connect to the database/SFTP/Web Service'));
 
           // Error log database connection error
           // error_log(print_r($returnArray, true));
@@ -124,7 +127,7 @@
       {
         // Catch the error from the try section of code
         // Set message
-        $returnArray = array('SError' => trim('Caught - cannot connect to the database/SFTP - ' . $e->getMessage()));
+        $returnArray = array('SError' => trim('Caught - cannot connect to the database/SFTP/Web Service - ' . $e->getMessage()));
 
         // Error log database connection error
         // error_log(print_r($returnArray, true));
@@ -285,79 +288,82 @@
       // Try to execute the following CURL call
       try
       {
-        // Set variables with database settings
-        $this->setConfigVars($type);
+        // Set array
+        $connectionStatus = array();
 
-        // Set array to variable
-        $conVars = $this->getConfigVars();
+        // Connect to server
+        $connectionStatus = $this->openConnection($type);
 
-        // Initializing the parameters with their values
-        $this->Driver = reset($conVars); // Driver
-        $this->Server = next($conVars); // Server name
-        $this->Port = next($conVars); // Server Port
-        $this->Database = next($conVars); // Database name
-        $this->User = next($conVars); // Username
-        $this->Pass = next($conVars); // Password
-        $this->URL = next($conVars); // URL
-        $this->URLAPI = next($conVars); // URL API
-        $this->RemotePath = next($conVars); // Remote Path directory
-        $this->subscriptionKey = next($conVars); // Subscription Key
-
-        // Setup the url string with the API query string intended for this call
-        $urlQueryString = "";
-        $urlQueryString .= $this->URL;
-        $urlQueryString .= $this->URLAPI;
-
-        // Setup the CURL call for the API
-        // Initialize the curl call
-        $ch = curl_init();
-
-        // Set curl option calls
-        // Set up the headers to be sent with the information in the curl call
-        $headers = array(
-          'Accept: application/json',
-          'Accept-Charset: UTF-8',
-          'Content-Type: application/json'
-        );
-
-        // Payload to be sent to the server for access token value
-        $payload = '{
-          "username": "' . $this->User . '",
-          "password": "'. $this->Pass . '"
-          }';
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSLVERSION, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_URL, $urlQueryString);
-
-        // Execute the curl call
-        $result = curl_exec($ch);
-
-        // Retrieve any curl errors
-        $ch_error = curl_error($ch);
-
-        // Close curl
-        curl_close($ch);
-
-        // Check if there were any errors when executing the curl call
-        if ($ch_error)
+        // Check if error with connecting to server
+        if (!isset($connectionStatus['SError']) && !array_key_exists('SError', $connectionStatus))
         {
-          // Return message
-          $returnValue = trim("Error~" . $ch_error);
+          // Setup the url string with the API query string intended for this call
+          $urlQueryString = "";
+          $urlQueryString .= $this->URL;
+          $urlQueryString .= $this->URLAPI;
 
-          // error_log($returnValue);
+          // Setup the CURL call for the API
+          // Initialize the curl call
+          $ch = curl_init();
+
+          // Set curl option calls
+          // Set up the headers to be sent with the information in the curl call
+          $headers = array(
+            'Accept: application/json',
+            'Accept-Charset: UTF-8',
+            'Content-Type: application/json'
+          );
+
+          // Payload to be sent to the server for access token value
+          $payload = '{
+            "username": "' . $this->User . '",
+            "password": "'. $this->Pass . '"
+            }';
+
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          // curl_setopt($ch, CURLOPT_VERBOSE, 1);
+          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+          curl_setopt($ch, CURLOPT_SSLVERSION, 1);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+          curl_setopt($ch, CURLOPT_URL, $urlQueryString);
+
+          // Execute the curl call
+          $result = curl_exec($ch);
+
+          // Retrieve any curl errors
+          $ch_error = curl_error($ch);
+
+          // Close curl
+          curl_close($ch);
+
+          // Check if there were any errors when executing the curl call
+          if ($ch_error)
+          {
+            // Return message
+            $returnValue = trim("Error~" . $ch_error);
+
+            // error_log($returnValue);
+          }
+          else
+          {
+            // Return message
+            $returnValue = trim("Success~" . $result);
+
+            // error_log($returnValue);
+          }
         }
         else
         {
-          // Return message
-          $returnValue = trim("Success~" . $result);
+          // Else error has occurred
+          $connectionServerMesg = reset($connectionStatus);
 
+          // Set message
+          $returnValue = trim('SError~' . $connectionServerMesg);
+
+          // Display message
           // error_log($returnValue);
         }
       }
@@ -366,7 +372,7 @@
         // Catch the error from the try section of code
 
         // Set message
-        $returnValue = trim('Error~Unable to perform the post Authentication Curl call ' . $e->getMessage());
+        $returnValue = trim('SError~Caught post Authentication Curl call ' . $e->getMessage());
 
         // error log the caught exception
         // error_log($e->getMessage());
@@ -400,211 +406,214 @@
       // Try to execute the following CURL call
       try
       {
-        // Set variables with database settings
-        $this->setConfigVars($type);
+        // Set array
+        $connectionStatus = array();
 
-        // Set array to variable
-        $conVars = $this->getConfigVars();
+        // Connect to server
+        $connectionStatus = $this->openConnection($type);
 
-        // Initializing the parameters with their values
-        $this->Driver = reset($conVars); // Driver
-        $this->Server = next($conVars); // Server name
-        $this->Port = next($conVars); // Server Port
-        $this->Database = next($conVars); // Database name
-        $this->User = next($conVars); // Username
-        $this->Pass = next($conVars); // Password
-        $this->URL = next($conVars); // URL
-        $this->URLAPI = next($conVars); // URL API
-        $this->RemotePath = next($conVars); // Remote Path directory
-        $this->subscriptionKey = next($conVars); // Subscription Key
-
-        // Set parameter of array
-        $sizeOfValueArray = sizeof($valueArray);
-
-        // Make sure the rolling window isn't greater than the # of urls
-        // 10 is a good number as it will not overload the external/internal server
-        $limit = 10;
-        $limit = ($sizeOfValueArray < $limit) ? $sizeOfValueArray : $limit;
-
-        // Initialize parameters
-        $master = curl_multi_init();
-        $overallValue = 0;
-
-        // Start the first batch of requests
-        foreach($valueArray as $valueData)
+        // Check if error with connecting to server
+        if (!isset($connectionStatus['SError']) && !array_key_exists('SError', $connectionStatus))
         {
-          // Setup the url string with the API query string intended for this call
-          $urlQueryString = "";
-          $urlQueryString .= $this->URL;
-          $urlQueryString .= $this->URLAPI;
-          $urlQueryString .= $urlQuery;
-          $urlQueryString .= '&dataNumber=' . $valueData;
+          // Set parameter of array
+          $sizeOfValueArray = sizeof($valueArray);
 
-          // Initialize the curl call
-          $ch = curl_init();
+          // Make sure the rolling window isn't greater than the # of urls
+          // 10 is a good number as it will not overload the external/internal server
+          $limit = 10;
+          $limit = ($sizeOfValueArray < $limit) ? $sizeOfValueArray : $limit;
 
-          // Set up the headers to be sent with the information in the curl call
-          $headers = array(
-            'Accept: application/json',
-            'Accept-Charset: UTF-8',
-            'Content-Type: application/json',
-            'Authorization: ' . $authToken
-          );
+          // Initialize parameters
+          $master = curl_multi_init();
+          $overallValue = 0;
 
-          // Payload to be sent to the server
-          $payload = '{
-            "search":
-            {
-              "searchTerms":
+          // Start the first batch of requests
+          foreach($valueArray as $valueData)
+          {
+            // Setup the url string with the API query string intended for this call
+            $urlQueryString = "";
+            $urlQueryString .= $this->URL;
+            $urlQueryString .= $this->URLAPI;
+            $urlQueryString .= $urlQuery;
+            $urlQueryString .= '&dataNumber=' . $valueData;
+
+            // Initialize the curl call
+            $ch = curl_init();
+
+            // Set up the headers to be sent with the information in the curl call
+            $headers = array(
+              'Accept: application/json',
+              'Accept-Charset: UTF-8',
+              'Content-Type: application/json',
+              'Authorization: ' . $authToken
+            );
+
+            // Payload to be sent to the server
+            $payload = '{
+              "search":
               {
-                "param01": "' . $valueData . '"
+                "searchTerms":
+                {
+                  "param01": "' . $valueData . '"
+                }
               }
-            }
-          }';
+            }';
 
-          // Setup the option for CURL
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-          curl_setopt($ch, CURLOPT_SSLVERSION, 1);
-          curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-          curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-          curl_setopt($ch, CURLOPT_URL, $urlQueryString);
+            // Setup the option for CURL
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // curl_setopt($ch, CURLOPT_VERBOSE, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSLVERSION, 1);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_URL, $urlQueryString);
 
-          // Add curl init to master multi curl handle
-          curl_multi_add_handle($master, $ch);
+            // Add curl init to master multi curl handle
+            curl_multi_add_handle($master, $ch);
 
-          // Increment total processed
-          $overallValue++;
+            // Increment total processed
+            $overallValue++;
 
-          // Check if total data has exceeded the limit
-          if ($overallValue >= $limit)
-          {
-            // Break out of loop as limit has been reached
-            break;
-          }
-        }
-
-        // Check if data are present to perform curls
-        if ($overallValue > 0)
-        {
-          // Perform the multi curl call
-          // Execute the multi handle
-          do
-          {
-            // Check if there is an execution running
-            // Run the sub-connections of hte current cURL handle
-            // Process each of the handles in the stack
-            $execrun = curl_multi_exec($master, $running);
-
-            // Check if the curl multi execute is OK
-            if($execrun != CURLM_OK)
+            // Check if total data has exceeded the limit
+            if ($overallValue >= $limit)
             {
-              error_log('Curl Error Break');
-
-              // Break loop as there was an issue with the curl multi exec function call
+              // Break out of loop as limit has been reached
               break;
             }
+          }
 
-            // This will pause the loop
-            // Wait for activity on any curl multi connection
-            // Blocks until there is activity on any of the curl multi connections
-            $ready = curl_multi_select($master);
-
-            // A request was just completed find out which one
-            while($done = curl_multi_info_read($master))
+          // Check if data are present to perform curls
+          if ($overallValue > 0)
+          {
+            // Perform the multi curl call
+            // Execute the multi handle
+            do
             {
-              // Get handle information
-              $info = curl_getinfo($done['handle']);
+              // Check if there is an execution running
+              // Run the sub-connections of hte current cURL handle
+              // Process each of the handles in the stack
+              $execrun = curl_multi_exec($master, $running);
 
-              // Retrieve URL parts of the handle
-              $parts = parse_url($info['url']);
-
-              // Retrieve the query from the URL
-              parse_str($parts['query'], $query);
-
-              // Retrieve data parameter value from URL query
-              $numberValue = $query['dataNumber'];
-
-              // Get return message from the handle
-              $output = curl_multi_getcontent($done['handle']);
-
-              // Store the output from the handle into an array
-              $returnValue[$numberValue] = $output;
-
-              // Check if the size of the array is greater than the incremental count plus one
-              if($sizeOfValueArray >= $overallValue + 1)
+              // Check if the curl multi execute is OK
+              if($execrun != CURLM_OK)
               {
-                // Start a new request (it's important to do this before removing the old one)
-                // Setup the url string with the API query string intended for this call
-                $urlQueryString = "";
-                $urlQueryString .= $this->URL;
-                $urlQueryString .= $this->URLAPI;
-                $urlQueryString .= $urlQuery;
-                $urlQueryString .= '&dataNumber=' . $valueArray[$overallValue];
+                error_log('Curl Error Break');
 
-                // Setup the CURL call for values
-                // Initialize the curl call
-                $ch = curl_init();
-
-                // Set curl option calls
-                // Set up the headers to be sent with the information in the curl call
-                $headers = array(
-                  'Accept: application/json',
-                  'Accept-Charset: UTF-8',
-                  'Content-Type: application/json',
-                  'Authorization: ' . $authToken
-                );
-
-                // Payload to be sent to the server
-                $payload = '{
-                  "search":
-                  {
-                    "searchTerms":
-                    {
-                      "param01": "' . $valueArray[$overallValue] . '"
-                    }
-                  }
-                }';
-
-                // Setup the option for CURL
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-                curl_setopt($ch, CURLOPT_SSLVERSION, 1);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-                curl_setopt($ch, CURLOPT_URL, $urlQueryString);
-
-                // Add curl init to master multi curl handle
-                curl_multi_add_handle($master, $ch);
-
-                // Increment total processed
-                $overallValue++;
+                // Break loop as there was an issue with the curl multi exec function call
+                break;
               }
 
-              // Remove the curl handle that just completed
-              curl_multi_remove_handle($master, $done['handle']);
+              // This will pause the loop
+              // Wait for activity on any curl multi connection
+              // Blocks until there is activity on any of the curl multi connections
+              $ready = curl_multi_select($master);
 
-              // To totally close the handle
-              curl_close($done['handle']);
+              // A request was just completed find out which one
+              while($done = curl_multi_info_read($master))
+              {
+                // Get handle information
+                $info = curl_getinfo($done['handle']);
+
+                // Retrieve URL parts of the handle
+                $parts = parse_url($info['url']);
+
+                // Retrieve the query from the URL
+                parse_str($parts['query'], $query);
+
+                // Retrieve data parameter value from URL query
+                $numberValue = $query['dataNumber'];
+
+                // Get return message from the handle
+                $output = curl_multi_getcontent($done['handle']);
+
+                // Store the output from the handle into an array
+                $returnValue[$numberValue] = $output;
+
+                // Check if the size of the array is greater than the incremental count plus one
+                if($sizeOfValueArray >= $overallValue + 1)
+                {
+                  // Start a new request (it's important to do this before removing the old one)
+                  // Setup the url string with the API query string intended for this call
+                  $urlQueryString = "";
+                  $urlQueryString .= $this->URL;
+                  $urlQueryString .= $this->URLAPI;
+                  $urlQueryString .= $urlQuery;
+                  $urlQueryString .= '&dataNumber=' . $valueArray[$overallValue];
+
+                  // Setup the CURL call for values
+                  // Initialize the curl call
+                  $ch = curl_init();
+
+                  // Set curl option calls
+                  // Set up the headers to be sent with the information in the curl call
+                  $headers = array(
+                    'Accept: application/json',
+                    'Accept-Charset: UTF-8',
+                    'Content-Type: application/json',
+                    'Authorization: ' . $authToken
+                  );
+
+                  // Payload to be sent to the server
+                  $payload = '{
+                    "search":
+                    {
+                      "searchTerms":
+                      {
+                        "param01": "' . $valueArray[$overallValue] . '"
+                      }
+                    }
+                  }';
+
+                  // Setup the option for CURL
+                  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                  // curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                  curl_setopt($ch, CURLOPT_SSLVERSION, 1);
+                  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+                  curl_setopt($ch, CURLOPT_URL, $urlQueryString);
+
+                  // Add curl init to master multi curl handle
+                  curl_multi_add_handle($master, $ch);
+
+                  // Increment total processed
+                  $overallValue++;
+                }
+
+                // Remove the curl handle that just completed
+                curl_multi_remove_handle($master, $done['handle']);
+
+                // To totally close the handle
+                curl_close($done['handle']);
+              }
             }
-          }
-          while ($running); // Continue while there is still a curl executing else exit
+            while ($running); // Continue while there is still a curl executing else exit
 
-          // Close multi curl master
-          curl_multi_close($master);
+            // Close multi curl master
+            curl_multi_close($master);
+          }
+        }
+        else
+        {
+          // Else error has occurred
+          $connectionServerMesg = reset($connectionStatus);
+
+          // Set message
+          $returnValue = trim('SError~' . $connectionServerMesg);
+
+          // Display message
+          // error_log($returnValue);
         }
       }
       catch(Exception $e)
       {
         // Catch the error from the try section of code
         // Set message
-        $returnValue = array('SError' => 'Unable to perform the post Search Curl call(s) ' . $e->getMessage());
+        $returnValue = array('SError' => 'Caught post Search Curl call(s) ' . $e->getMessage());
 
         // error log the caught exception
         // error_log($e->getMessage());
@@ -639,205 +648,208 @@
       // Try to execute the following CURL call
       try
       {
-        // Set variables with database settings
-        $this->setConfigVars($type);
+        // Set array
+        $connectionStatus = array();
 
-        // Set array to variable
-        $conVars = $this->getConfigVars();
+        // Connect to server
+        $connectionStatus = $this->openConnection($type);
 
-        // Initializing the parameters with their values
-        $this->Driver = reset($conVars); // Driver
-        $this->Server = next($conVars); // Server name
-        $this->Port = next($conVars); // Server Port
-        $this->Database = next($conVars); // Database name
-        $this->User = next($conVars); // Username
-        $this->Pass = next($conVars); // Password
-        $this->URL = next($conVars); // URL
-        $this->URLAPI = next($conVars); // URL API
-        $this->RemotePath = next($conVars); // Remote Path directory
-        $this->subscriptionKey = next($conVars); // Subscription Key
-
-        // Set parameter of array
-        $sizeOfPostFields = sizeof($postFields);
-
-        // make sure the rolling curl call isn't greater than the number of values in array
-        $limit = 10;
-        // $limit = 14;
-        $limit = ($sizeOfPostFields < $limit) ? $sizeOfPostFields : $limit;
-
-        // Initialize parameters
-        $master = curl_multi_init();
-        $overallFoundValue = 0;
-
-        // Start the first batch of requests
-        foreach($postFields as $postFieldData)
+        // Check if error with connecting to server
+        if (!isset($connectionStatus['SError']) && !array_key_exists('SError', $connectionStatus))
         {
-          // Decode JSON message
-          $postFieldDataResponse = json_decode($postFieldData, true);
+          // Set parameter of array
+          $sizeOfPostFields = sizeof($postFields);
 
-          // Extract data from string
-          $numberSearchStringResponse = isset($postFieldDataResponse[0]['root']['param01']) ? trim($postFieldDataResponse[0]['root']['param01']) : trim('');
+          // make sure the rolling curl call isn't greater than the number of values in array
+          $limit = 10;
+          // $limit = 14;
+          $limit = ($sizeOfPostFields < $limit) ? $sizeOfPostFields : $limit;
 
-          // Setup the url string with the API query string intended for this call
-          $urlQueryString = "";
-          $urlQueryString .= $this->URL;
-          $urlQueryString .= $this->URLAPI;
-          $urlQueryString .= '?numberPOST=' . $numberSearchStringResponse;
+          // Initialize parameters
+          $master = curl_multi_init();
+          $overallFoundValue = 0;
 
-          // Initialize the curl call
-          $ch = curl_init();
-
-          // Set up the headers to be sent with the information in the curl call
-          $headers = array(
-            'Accept: application/json',
-            'Accept-Charset: UTF-8',
-            'Content-Type: application/json',
-            'Authorization: ' . $authToken
-          );
-
-          // Payload to be sent to the server
-          $payload = $postFields;
-
-          // Setup the option for CURL
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-          curl_setopt($ch, CURLOPT_SSLVERSION, 1);
-          curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-          curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-          curl_setopt($ch, CURLOPT_URL, $urlQueryString);
-
-          // Add curl init to master multi curl handle
-          curl_multi_add_handle($master, $ch);
-
-          // Increment total processed
-          $overallFoundValue++;
-
-          // Break out of loop as limit has been reached
-          if ($overallFoundValue >= $limit)
+          // Start the first batch of requests
+          foreach($postFields as $postFieldData)
           {
+            // Decode JSON message
+            $postFieldDataResponse = json_decode($postFieldData, true);
+
+            // Extract data from string
+            $numberSearchStringResponse = isset($postFieldDataResponse[0]['root']['param01']) ? trim($postFieldDataResponse[0]['root']['param01']) : trim('');
+
+            // Setup the url string with the API query string intended for this call
+            $urlQueryString = "";
+            $urlQueryString .= $this->URL;
+            $urlQueryString .= $this->URLAPI;
+            $urlQueryString .= '?numberPOST=' . $numberSearchStringResponse;
+
+            // Initialize the curl call
+            $ch = curl_init();
+
+            // Set up the headers to be sent with the information in the curl call
+            $headers = array(
+              'Accept: application/json',
+              'Accept-Charset: UTF-8',
+              'Content-Type: application/json',
+              'Authorization: ' . $authToken
+            );
+
+            // Payload to be sent to the server
+            $payload = $postFields;
+
+            // Setup the option for CURL
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // curl_setopt($ch, CURLOPT_VERBOSE, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSLVERSION, 1);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_URL, $urlQueryString);
+
+            // Add curl init to master multi curl handle
+            curl_multi_add_handle($master, $ch);
+
+            // Increment total processed
+            $overallFoundValue++;
+
             // Break out of loop as limit has been reached
-            break;
-          }
-        }
-
-        // Check if data is present to perform curls
-        if ($overallFoundValue > 0)
-        {
-          // Perform the multi curl call
-          // Execute the multi handle
-          do
-          {
-            // Check if there is an execution running
-            // Run the sub-connections of hte current cURL handle
-            // Process each of the handles in the stack
-            $execrun = curl_multi_exec($master, $running);
-
-            // Check if the curl multi execute is OK
-            if($execrun != CURLM_OK)
+            if ($overallFoundValue >= $limit)
             {
-              error_log('Update POST Curl Error Break');
-
-              // Break loop as there was an issue with the curl multi exec function call
+              // Break out of loop as limit has been reached
               break;
             }
+          }
 
-            // This will pause the loop
-            // Wait for activity on any curl multi connection
-            // Blocks until there is activity on any of the curl multi connections
-            $ready = curl_multi_select($master);
-
-            // A request was just completed find out which one
-            while($done = curl_multi_info_read($master))
+          // Check if data is present to perform curls
+          if ($overallFoundValue > 0)
+          {
+            // Perform the multi curl call
+            // Execute the multi handle
+            do
             {
-              // Get handle information
-              $info = curl_getinfo($done['handle']);
+              // Check if there is an execution running
+              // Run the sub-connections of hte current cURL handle
+              // Process each of the handles in the stack
+              $execrun = curl_multi_exec($master, $running);
 
-              // Retrieve URL parts of the handle
-              $parts = parse_url($info['url']);
-
-              // Retrieve the query from the URL
-              parse_str($parts['query'], $query);
-
-              // Retrieve data parameter value from URL query
-              $numberValue = $query['numberPOST'];
-
-              // Get return message from the handle
-              $output = curl_multi_getcontent($done['handle']);
-
-              // Store the output from the handle into an array
-              $returnValue[$numberValue] = $output;
-
-              // Check if the size of the array is greater than the incremental count plus one
-              if($sizeOfPostFields >= $overallFoundValue + 1)
+              // Check if the curl multi execute is OK
+              if($execrun != CURLM_OK)
               {
-                // Extract data from string
-                $postFieldArrayList = $postFields[$overallFoundValue];
+                error_log('Update POST Curl Error Break');
 
-                // Decode JSON message
-                $postFieldDataResponse = json_decode($postFieldArrayList, true);
-
-                // Extract data from string
-                $numberSearchStringResponse = isset($postFieldDataResponse[0]['root']['param01']) ? trim($postFieldDataResponse[0]['root']['param01']) : trim('');
-
-                // Setup the url string with the API query string intended for this call
-                $urlQueryString = "";
-                $urlQueryString .= $this->URL;
-                $urlQueryString .= $this->URLAPI;
-                $urlQueryString .= '?numberPOST=' . $numberSearchStringResponse;
-
-                // Initialize the curl call
-                $ch = curl_init();
-
-                // Set up the headers to be sent with the information in the curl call
-                $headers = array(
-                  'Accept: application/json',
-                  'Accept-Charset: UTF-8',
-                  'Content-Type: application/json',
-                  'Authorization: ' . $authToken
-                );
-
-                // Payload to be sent to the server
-                $payload = $postFieldArrayList;
-
-                // Setup the option for CURL
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-                curl_setopt($ch, CURLOPT_SSLVERSION, 1);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-                curl_setopt($ch, CURLOPT_URL, $urlQueryString);
-
-                // Add curl init to master multi curl handle
-                curl_multi_add_handle($master, $ch);
-
-                // Increment total processed
-                $overallFoundValue++;
+                // Break loop as there was an issue with the curl multi exec function call
+                break;
               }
 
-              // Remove the curl handle that just completed
-              curl_multi_remove_handle($master, $done['handle']);
+              // This will pause the loop
+              // Wait for activity on any curl multi connection
+              // Blocks until there is activity on any of the curl multi connections
+              $ready = curl_multi_select($master);
 
-              // To totally close the handle
-              curl_close($done['handle']);
+              // A request was just completed find out which one
+              while($done = curl_multi_info_read($master))
+              {
+                // Get handle information
+                $info = curl_getinfo($done['handle']);
+
+                // Retrieve URL parts of the handle
+                $parts = parse_url($info['url']);
+
+                // Retrieve the query from the URL
+                parse_str($parts['query'], $query);
+
+                // Retrieve data parameter value from URL query
+                $numberValue = $query['numberPOST'];
+
+                // Get return message from the handle
+                $output = curl_multi_getcontent($done['handle']);
+
+                // Store the output from the handle into an array
+                $returnValue[$numberValue] = $output;
+
+                // Check if the size of the array is greater than the incremental count plus one
+                if($sizeOfPostFields >= $overallFoundValue + 1)
+                {
+                  // Extract data from string
+                  $postFieldArrayList = $postFields[$overallFoundValue];
+
+                  // Decode JSON message
+                  $postFieldDataResponse = json_decode($postFieldArrayList, true);
+
+                  // Extract data from string
+                  $numberSearchStringResponse = isset($postFieldDataResponse[0]['root']['param01']) ? trim($postFieldDataResponse[0]['root']['param01']) : trim('');
+
+                  // Setup the url string with the API query string intended for this call
+                  $urlQueryString = "";
+                  $urlQueryString .= $this->URL;
+                  $urlQueryString .= $this->URLAPI;
+                  $urlQueryString .= '?numberPOST=' . $numberSearchStringResponse;
+
+                  // Initialize the curl call
+                  $ch = curl_init();
+
+                  // Set up the headers to be sent with the information in the curl call
+                  $headers = array(
+                    'Accept: application/json',
+                    'Accept-Charset: UTF-8',
+                    'Content-Type: application/json',
+                    'Authorization: ' . $authToken
+                  );
+
+                  // Payload to be sent to the server
+                  $payload = $postFieldArrayList;
+
+                  // Setup the option for CURL
+                  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                  // curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                  curl_setopt($ch, CURLOPT_SSLVERSION, 1);
+                  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+                  curl_setopt($ch, CURLOPT_URL, $urlQueryString);
+
+                  // Add curl init to master multi curl handle
+                  curl_multi_add_handle($master, $ch);
+
+                  // Increment total processed
+                  $overallFoundValue++;
+                }
+
+                // Remove the curl handle that just completed
+                curl_multi_remove_handle($master, $done['handle']);
+
+                // To totally close the handle
+                curl_close($done['handle']);
+              }
             }
-          }
-          while ($running); // Continue while there is still a curl executing else exit
+            while ($running); // Continue while there is still a curl executing else exit
 
-          // Close multi curl master
-          curl_multi_close($master);
+            // Close multi curl master
+            curl_multi_close($master);
+          }
+        }
+        else
+        {
+          // Else error has occurred
+          $connectionServerMesg = reset($connectionStatus);
+
+          // Set message
+          $returnValue = trim('SError~' . $connectionServerMesg);
+
+          // Display message
+          // error_log($returnValue);
         }
       }
       catch(Exception $e)
       {
         // Catch the error from the try section of code
         // Set message
-        $returnValue = array('SError' => 'Unable to perform the post Update Curl call(s) ' . $e->getMessage());
+        $returnValue = array('SError' => 'Caught post Update Curl call(s) ' . $e->getMessage());
 
         // error log the caught exception
         // error_log($e->getMessage());

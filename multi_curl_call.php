@@ -44,7 +44,7 @@
     throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
   });
 
-  // Attempt to generate email
+  // Attempt script logic
   try
   {
     // Set new memory limit Note: This will revert back to original limit upon end of script
@@ -56,10 +56,10 @@
     // Declare download directory
     define ('TEMPDOC', '/var/www/html/Temp_Directory/');
 
-    // Include database class file
+    // Include class file
     include ("multi_curl_class.php");
 
-    // Create an object of database class as used by the API calls
+    // Create an object of class as used by the API calls
     $multi_curl_cl = new multi_curl_class();
 
     // Initialize variables and arrays
